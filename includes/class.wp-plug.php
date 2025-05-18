@@ -1,29 +1,13 @@
 <?php
-class wp_plug
+class WP_Plug
 {
-    // Plugin version
-    public static $version = '1.0.0';
-
-    // Plugin name
-    public static $name = 'WP Plug';
-
-    // Plugin slug
-    public static $slug = 'wp-plug';
-
-    // Plugin directory path
-    public static $dir_path = __DIR__;
-
-    // Plugin directory URL
-    //public static $dir_url = plugin_dir_url(__FILE__);
-
     private static $instance = null;
 
-    public static function instance($dir_path)
+    public static function instance()
     {
         if (self::$instance === null) {
             self::$instance = new self();
         }
-        self::$dir_path = $dir_path;
         return self::$instance;
     }
 
@@ -36,14 +20,53 @@ class wp_plug
         // Deactivation hook
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
 
+        $this->actions();
+        $this->filters();
+    }
+
+    private function actions()
+    {
+        /** 
+         * Add your action hooks here
+         * For example, you can add custom post types, taxonomies, etc.
+         * add_action('init', array($this, 'custom_post_type')); 
+        **/
+        
         // Admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));
 
-        add_action('the_content', array($this, 'content_reading_time'));
+        add_action('the_content', callback: array($this, 'content_reading_time'));
 
-        add_filter('the_content', array($this, 'scroll_progress_bar'));
+        add_action('wp_enqueue_scripts', function() {
+            $this->enqueue_styles();
+            $this->enqueue_scripts();
+        });
+    }
+
+    private function filters()
+    {
+        /** 
+         * Add your filter hooks here
+         * For example, you can modify the content, title, etc.
+         * add_filter('the_content', array($this, 'modify_content')); 
+         **/
+        add_filter('the_title', array($this, 'scroll_progress_bar'));
 
         add_filter( 'show_admin_bar', array($this, 'hide_admin_bar_for_roles'));
+    }
+
+    // Enqueue styles and scripts
+    private function enqueue_styles()
+    {
+        $styles = ['style'];
+        foreach ($styles as $style) {
+            wp_enqueue_style(WP_PLUG_SLUG . '-' . $style, WP_PLUG_DIR_URL . 'assets/css/' . $style . '.css', [], WP_PLUG_VERSION, 'all');
+        }
+    }
+    
+    public function enqueue_scripts()
+    {
+        wp_enqueue_script(WP_PLUG_SLUG, WP_PLUG_DIR_URL . 'assets/js/script.js', ['jquery'], WP_PLUG_VERSION, array('in_footer' => true));   
     }
 
     // Activation function
@@ -83,10 +106,10 @@ class wp_plug
     public function add_admin_menu()
     {
         add_menu_page(
-            self::$name,
-            self::$name,
+            WP_PLUG_NAME,
+            WP_PLUG_NAME,
             'manage_options',
-            self::$slug . '-settings',
+            WP_PLUG_SLUG . '-settings',
             array($this, 'settings_page'),
             'dashicons-admin-generic',
             100
@@ -95,7 +118,7 @@ class wp_plug
 
     public function settings_page()
     {
-        require_once self::$dir_path . 'views/settings.php';
+        require_once WP_PLUG_DIR_PATH . 'views/settings.php';
         // Include the settings page view file
         // This file should contain the HTML and PHP code for the settings page
     }
@@ -111,49 +134,14 @@ class wp_plug
         return $content;
     }
 
-    public function scroll_progress_bar($content)
+    public function scroll_progress_bar($title)
     {
-        // Add the scroll progress bar HTML and CSS to the content
         $progress_bar = '<div class="scroll-progress-bar"></div>';
-        $content .= $progress_bar;
+        $title = $progress_bar . $title;
 
-        add_filter('wp_head', array($this, 'progress_bar_styles'));
+        wp_enqueue_style(WP_PLUG_SLUG . '-scroll-progress-bar', WP_PLUG_DIR_URL . 'assets/css/scroll-progress-bar.css', [], WP_PLUG_VERSION, 'all');
 
-        return $content;
-    }
-
-    public function progress_bar_styles()
-    {
-        // Add custom CSS for the scroll progress bar
-        echo '<style>
-            .scroll-progress-bar {
-                animation:
-                    scaleProgress auto linear,
-                    colorChange auto linear;
-                animation-timeline: scroll(root);
-            }
-
-            @keyframes scaleProgress {
-                0% {
-                    transform: scaleX(0);
-                }
-                100% {
-                    transform: scaleX(1);
-                }
-                }
-
-            @keyframes colorChange {
-                0% {
-                    background-color: red;
-                }
-                50% {
-                    background-color: yellow;
-                }
-                100% {
-                    background-color: lime;
-                }
-            }
-        </style>';
+        return $title;
     }
 
     function hide_admin_bar_for_roles( $show_admin_bar ) {

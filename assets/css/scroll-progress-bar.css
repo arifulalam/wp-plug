@@ -1,0 +1,31 @@
+.scroll-progress-bar {
+  animation: scaleProgress auto linear, colorChange auto linear;
+  animation-timeline: scroll(root);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  margin: 0;
+  height: 3px;
+}
+
+@keyframes scaleProgress {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes colorChange {
+  0% {
+    background-color: red;
+  }
+  50% {
+    background-color: yellow;
+  }
+  100% {
+    background-color: lime;
+  }
+}
