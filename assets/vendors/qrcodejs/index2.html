@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>QR Code Styling</title>
+    <!-- <script
+      type="text/javascript"
+      src="https://unpkg.com/qr-border-plugin@0.0.8"
+    ></script> -->
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/qr-border-plugin"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/qr-code-styling@1.6.0-rc.1"
+    ></script>
+  </head>
+  <body>
+    <div id="canvas"></div>
+    <script type="text/javascript">
+      //https://qr-code-styling.com/
+      //https://www.npmjs.com/package/qr-border-plugin
+      const qrCode = new QRCodeStyling({
+        type: "canvas", // "svg" or "canvas"
+        version: 1,
+        shape: "circle", // "square" or "circle"
+        width: 250,
+        height: 250,
+        data: "https://www.syncmachine.com",
+        margin: 40,
+        qrOptions: {
+          typeNumber: "0", // 0, 4 - 15
+          mode: "Byte",
+          errorCorrectionLevel: "H", // "L", "M", "Q", "H"
+        },
+        image: "",
+        imageOptions: {
+          saveAsBlob: true,
+          hideBackgroundDots: true,
+          imageSize: 0.6,
+          margin: 5,
+        },
+        dotsOptions: {
+          type: "square", // "square", "rounded", "dots", "classy", "classy-rounded", "extra-rounded"
+          color: "#df349e",
+          roundSize: true,
+          gradient: {
+            type: "linear", // "linear" or "radial"
+            rotation: 0,
+            colorStops: [
+              {
+                offset: 0,
+                color: "#6a1a4c",
+              },
+              {
+                offset: 1,
+                color: "green",
+              },
+            ],
+          },
+        },
+        cornersSquareOptions: {
+          type: "dot", // "none" or "dot" or "square" or "extra-rounded"
+          color: "#000000",
+          gradient: {
+            type: "linear",
+            rotation: 0,
+            colorStops: [
+              {
+                offset: 0,
+                color: "#000000",
+              },
+              {
+                offset: 1,
+                color: "#a61717",
+              },
+            ],
+          },
+        },
+        cornersDotOptions: {
+          type: "dot", // "none", "square", "dot"
+          color: "#000000",
+        },
+        backgroundOptions: {
+          round: 0,
+          color: "#ffffff",
+          gradient: null,
+        },
+      });
+
+      qrCode.applyExtension(
+        QRBorderPlugin({
+          round: 1,
+          thickness: 40,
+          color: "#000000",
+          decorations: {
+            top: {
+              type: "text",
+              value: "Read me on other devices",
+              style: "font: 18px sans-serif; fill: #D5B882;",
+            },
+            bottom: {
+              type: "text",
+              value: "SCAN ME",
+              style: "font: 18px sans-serif; fill: #D5B882;",
+            },
+          },
+          borderInner: {
+            color: "#000000",
+            thickness: 15,
+          },
+          borderOuter: {
+            color: "#000000",
+            thickness: 15,
+          },
+        })
+      );
+
+      // Set the license key (replace 'key' with your actual key)
+      //QRBorderPlugin.setKey("key");
+
+      qrCode.append(document.getElementById("canvas"));
+      //qrCode.download({ name: "qr", extension: "svg" });
+    </script>
+  </body>
+</html>
